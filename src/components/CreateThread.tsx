@@ -5,7 +5,11 @@ import { useAuth } from '@/components/AuthProvider'
 import { useRouter } from 'next/navigation'
 import { createThread } from '@/utils/threadUtils'
 
-export default function CreateThread() {
+interface CreateThreadProps {
+  onThreadCreated?: () => void
+}
+
+export default function CreateThread({ onThreadCreated }: CreateThreadProps) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [isPrivate, setIsPrivate] = useState(false)
@@ -18,19 +22,23 @@ export default function CreateThread() {
     if (!user || !title.trim()) return
 
     setLoading(true)
-    
+
     const result = await createThread(title, content, isPrivate, user.id)
-    
+
     if (result.success) {
       setTitle('')
       setContent('')
       setIsPrivate(false)
       alert('Thread created successfully!')
-      router.push('/')
+      if (onThreadCreated) {
+        onThreadCreated()
+      } else {
+        router.push('/')
+      }
     } else {
       alert('Failed to create thread. Please try again.')
     }
-    
+
     setLoading(false)
   }
 
@@ -48,7 +56,7 @@ export default function CreateThread() {
             <p className="text-gray-400 text-sm">Start a new conversation</p>
           </div>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-semibold text-white mb-3">
@@ -63,7 +71,7 @@ export default function CreateThread() {
               className="w-full px-4 py-4 bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-semibold text-white mb-3">
               Thread Content
@@ -76,7 +84,7 @@ export default function CreateThread() {
               className="w-full px-4 py-4 bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-lg"
             />
           </div>
-          
+
           <div className="flex items-center justify-between p-6 bg-gray-700 border border-gray-600">
             <div className="flex items-center space-x-3">
               <input
@@ -104,7 +112,7 @@ export default function CreateThread() {
               </div>
             )}
           </div>
-          
+
           <div className="flex justify-end space-x-4">
             <button
               type="button"
